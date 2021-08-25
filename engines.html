@@ -1,0 +1,43 @@
+<script>
+  const webSpeechEngine = new WebSpeechEngine()
+
+  function WebSpeechEngine() {
+    var utter;
+    this.speak = function(text, options, onEvent) {
+      utter = new SpeechSynthesisUtterance()
+      utter.text = text
+      utter.voice = options.voice
+      if (options.lang) utter.lang = options.lang
+      if (options.pitch) utter.pitch = options.pitch
+      if (options.rate) utter.rate = options.rate
+      if (options.volume) utter.volume = options.volume
+      utter.onstart = () => onEvent({type: 'start', charIndex: 0})
+      utter.onend = () => onEvent({type: 'end', charIndex: text.length})
+      utter.onerror = ev => onEvent({type: 'error', errorMessage: ev.error})
+      speechSynthesis.speak(utter)
+    }
+    this.stop = function() {
+      if (utter) utter.onend = null
+      speechSynthesis.cancel()
+    }
+    this.pause = function() {
+      speechSynthesis.pause()
+    }
+    this.resume = function() {
+      speechSynthesis.resume()
+    }
+    this.isSpeaking = function() {
+      return speechSynthesis.speaking
+    }
+    this.getVoices = async function() {
+      return this.voices || (this.voices = await loadVoices())
+    }
+    function loadVoices() {
+      return promiseTimeout(3000, "Timeout WebSpeech getVoices", new Promise(function(fulfill) {
+        var voices = speechSynthesis.getVoices() || []
+        if (voices.length) fulfill(voices)
+        else speechSynthesis.onvoiceschanged = () => fulfill(speechSynthesis.getVoices() || [])
+      }))
+    }
+  }
+</script>

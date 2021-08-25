@@ -1,0 +1,19 @@
+<script>
+  const engine = webSpeechEngine
+  voices = null
+  options = {}
+  error = null
+  $(docReady)
+
+  async function docReady() {
+    voices = await loadVoices()
+  }
+
+  async function loadVoices() {
+    return engine.getVoices()
+  }
+
+  function readAloud() {
+    
+  }
+</script>

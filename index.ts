@@ -1,6 +1,10 @@
 /**
  * @OnlyCurrentDoc
  */
+function include(filename) {
+  return HtmlService.createHtmlOutputFromFile(filename)
+    .getContent()
+}
 
 function onOpen(e) {
   DocumentApp.getUi().createAddonMenu()
@@ -13,7 +17,8 @@ function onInstall(e) {
 }
 
 function showSidebar() {
-  const html = HtmlService.createHtmlOutputFromFile('sidebar')
+  const html = HtmlService.createTemplateFromFile('sidebar')
+    .evaluate()
     .setTitle('Read Aloud')
   DocumentApp.getUi().showSidebar(html)
 }
