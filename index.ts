@@ -1,7 +1,19 @@
+/**
+ * @OnlyCurrentDoc
+ */
 
-const greeter = (person: string) => {
-  return `Hello, ${person}!`;
+function onOpen(e) {
+  DocumentApp.getUi().createAddonMenu()
+    .addItem('Open', 'showSidebar')
+    .addToUi()
 }
 
-let user = 'Grant';
-Logger.log(greeter(user));
+function onInstall(e) {
+  onOpen(e)
+}
+
+function showSidebar() {
+  const html = HtmlService.createHtmlOutputFromFile('sidebar')
+    .setTitle('Read Aloud')
+  DocumentApp.getUi().showSidebar(html)
+}
