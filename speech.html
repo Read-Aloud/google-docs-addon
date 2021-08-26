@@ -6,44 +6,21 @@
     if (texts.length) texts = getChunks(texts.join("\n\n"));
 
     var self = this;
-    var engine;
+    var engine = webSpeechEngine;
     var pauseDuration = 650/options.rate;
-    var state = "IDLE";
     var index = 0;
     var delayedPlayTimer;
-    var ready = Promise.resolve(pickEngine())
-      .then(function(x) {
-        engine = x;
-      })
+    var ready = Promise.resolve();
 
+    this.state = "IDLE";
     this.options = options;
     this.play = play;
     this.pause = pause;
     this.stop = stop;
-    this.getState = getState;
-    this.getPosition = getPosition;
     this.forward = forward;
     this.rewind = rewind;
     this.seek = seek;
     this.gotoEnd = gotoEnd;
-
-    function pickEngine() {
-      if (isGoogleTranslate(options.voice) && !/\s(Hebrew|Telugu)$/.test(options.voice.voiceName)) {
-        return googleTranslateTtsEngine.ready()
-          .then(function() {return googleTranslateTtsEngine})
-          .catch(function(err) {
-            console.error(err);
-            options.voice.autoSelect = true;
-            return remoteTtsEngine;
-          })
-      }
-      if (isAmazonPolly(options.voice)) return amazonPollyTtsEngine;
-      if (isGoogleWavenet(options.voice)) return googleWavenetTtsEngine;
-      if (isIbmWatson(options.voice)) return ibmWatsonTtsEngine;
-      if (isRemoteVoice(options.voice)) return remoteTtsEngine;
-      if (isGoogleNative(options.voice)) return new TimeoutTtsEngine(browserTtsEngine, 16*1000);
-      return browserTtsEngine;
-    }
 
     function getChunks(text) {
       var isEA = /^zh|ko|ja/.test(options.lang);
@@ -58,49 +35,31 @@
       }
     }
 
-    function getState() {
-      if (!engine) return "LOADING";
-      return new Promise(function(fulfill) {
-        engine.isSpeaking(function(isSpeaking) {
-          if (state == "PLAYING") fulfill(isSpeaking ? "PLAYING" : "LOADING");
-          else fulfill("PAUSED");
-        })
-      })
-    }
-
-    function getPosition() {
-      return {
-        index: index,
-        texts: texts,
-        isRTL: /^(ar|az|dv|he|iw|ku|fa|ur)\b/.test(options.lang),
-      }
-    }
-
     function play() {
       if (index >= texts.length) {
-        state = "IDLE";
+        self.state = "IDLE";
         if (self.onEnd) self.onEnd();
         return Promise.resolve();
       }
-      else if (state == "PAUSED") {
-        state = "PLAYING";
+      else if (self.state == "PAUSED") {
+        self.state = "PLAYING";
         engine.resume();
         return Promise.resolve();
       }
       else {
-        state = new String("PLAYING");
-        state.startTime = new Date().getTime();
+        self.state = new String("PLAYING");
+        self.state.startTime = new Date().getTime();
         return ready
           .then(function() {
             return speak(texts[index],
               function() {
-                state = "IDLE";
-                if (engine.setNextStartTime) engine.setNextStartTime(new Date().getTime() + pauseDuration, options);
+                self.state = "IDLE";
+                if (engine.setNextStartTime) engine.setNextStartTime(Date.now() + pauseDuration, options);
                 index++;
                 play();
               },
               function(err) {
-                state = "IDLE";
+                self.state = "IDLE";
                 if (self.onEnd) self.onEnd(err);
               })
           })
@@ -129,7 +88,7 @@
           if (canPause()) {
             clearTimeout(delayedPlayTimer);
             engine.pause();
-            state = "PAUSED";
+            self.state = "PAUSED";
           }
           else return stop();
         })
@@ -140,7 +99,7 @@
         .then(function() {
           clearTimeout(delayedPlayTimer);
           engine.stop();
-          state = "IDLE";
+          self.state = "IDLE";
         })
     }
 
@@ -153,7 +112,7 @@
     }
 
     function rewind() {
-      if (state == "PLAYING" && new Date().getTime()-state.startTime > 3*1000) {
+      if (self.state == "PLAYING" && new Date().getTime()-self.state.startTime > 3*1000) {
         return stop().then(play);
       }
       else if (index > 0) {

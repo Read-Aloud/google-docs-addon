@@ -25,4 +25,15 @@
       }
     })
   }
+
+  function isGoogleNative(voice) {
+    return /^Google\s/.test(voice.name)
+  }
+
+  function isChromeOSNative(voice) {
+    return /^Chrome\sOS\s/.test(voice.name)
+  }
+  function isGoogleTranslate(voice) {
+    return /^GoogleTranslate\s/.test(voice.name)
+  }
 </script>

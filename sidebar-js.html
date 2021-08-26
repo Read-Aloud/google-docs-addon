@@ -2,18 +2,35 @@
   const engine = webSpeechEngine
   voices = null
   options = {}
+  progress = 0
   error = null
+  activeSpeech = null
   $(docReady)
 
   async function docReady() {
     voices = await loadVoices()
   }
 
-  async function loadVoices() {
+  function loadVoices() {
     return engine.getVoices()
   }
 
-  function readAloud() {
-    
+  async function readAloud() {
+    if (!options.voice) return error = {message: "Please select a voice"}
+    try {
+      error = null
+      progress++
+      const texts = await new Promise((fulfill, reject) => gsRun(fulfill, reject).getTexts())
+      console.log(texts)
+      activeSpeech = new Speech(texts, options)
+      activeSpeech.onEnd = () => activeSpeech = null
+      return activeSpeech.play()
+    }
+    catch(err) {
+      error = err
+    }
+    finally {
+      progress--
+    }
   }
 </script>
