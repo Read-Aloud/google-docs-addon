@@ -29,11 +29,32 @@
   function isGoogleNative(voice) {
     return /^Google\s/.test(voice.name)
   }
-
   function isChromeOSNative(voice) {
     return /^Chrome\sOS\s/.test(voice.name)
   }
   function isGoogleTranslate(voice) {
     return /^GoogleTranslate\s/.test(voice.name)
+  }
+
+  function findVoiceByLang(voices, lang) {
+    var speechLang = parseLang(lang);
+    var match = {};
+    voices.forEach(function(voice) {
+      if (voice.lang) {
+        var voiceLang = parseLang(voice.lang);
+        if (voiceLang.lang == speechLang.lang) {
+          if (voiceLang.rest == speechLang.rest) {
+            if (voice.gender == "female") match.first = match.first || voice;
+            else match.second = match.second || voice;
+          }
+          else if (!voiceLang.rest) match.third = match.third || voice;
+          else {
+            if (voiceLang.lang == 'en' && voiceLang.rest == 'us') match.fourth = voice;
+            else match.fourth = match.fourth || voice;
+          }
+        }
+      }
+    });
+    return match.first || match.second || match.third || match.fourth;
   }
 </script>

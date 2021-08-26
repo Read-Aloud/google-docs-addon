@@ -1,5 +1,7 @@
 <script>
   const webSpeechEngine = new WebSpeechEngine()
+  const fallbackTtsEngine = new FallbackTtsEngine()
+
 
   function WebSpeechEngine() {
     var utter;
@@ -38,6 +40,75 @@
         if (voices.length) fulfill(voices)
         else speechSynthesis.onvoiceschanged = () => fulfill(speechSynthesis.getVoices() || [])
       }))
+    }
+  }
+
+
+  function FallbackTtsEngine() {
+    const audio = document.createElement("AUDIO");
+    var isSpeaking = false;
+    var nextStartTime = 0;
+    var waitTimer;
+    var speakPromise;
+
+    this.speak = function(utterance, options, onEvent) {
+      audio.pause();
+      if (options.volume) audio.volume = options.volume;
+      if (options.rate) audio.defaultPlaybackRate = options.rate;
+      speakPromise = Promise.resolve()
+        .then(function() {
+          audio.src = getAudioUrl(utterance, options.lang, false)
+          return new Promise(fulfill => audio.oncanplay = fulfill)
+        })
+        .then(function() {
+          const waitTime = nextStartTime - Date.now();
+          if (waitTime > 0) return new Promise(f => waitTimer = setTimeout(f, waitTime))
+        })
+        .then(function() {
+          isSpeaking = true;
+          return audio.play();
+        })
+        .catch(function(err) {
+          onEvent({type: "error", errorMessage: err.message})
+        })
+      audio.onplay = function() {
+        onEvent({type: "start", charIndex: 0});
+      };
+      audio.onended = function() {
+        onEvent({type: "end", charIndex: utterance.length});
+        isSpeaking = false;
+      };
+      audio.onerror = function() {
+        onEvent({type: "error", errorMessage: audio.error.message});
+        isSpeaking = false;
+      };
+      audio.load();
+    }
+
+    this.stop =
+    this.pause = function() {
+      speakPromise.then(function() {
+        clearTimeout(waitTimer);
+        audio.pause();
+      })
+    }
+    this.resume = function() {
+      audio.play();
+    }
+    this.isSpeaking = function() {
+      return isSpeaking;
+    }
+
+    this.prefetch = function(utterance, options) {
+      ajaxGet(getAudioUrl(utterance, options.lang, true))
+    }
+    this.setNextStartTime = function(time, options) {
+      nextStartTime = time || 0;
+    }
+
+    function getAudioUrl(utterance, lang, prefetch) {
+      if (!lang) throw new Error("Language not specified")
+      return "https://support.readaloud.app/read-aloud/speak/" + lang + "?a=1" + "&pf=" + (prefetch ? 1 : 0) + "&q=" + encodeURIComponent(utterance)
     }
   }
 </script>
