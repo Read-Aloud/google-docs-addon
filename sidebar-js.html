@@ -20,17 +20,33 @@
     try {
       error = null
       progress++
-      const texts = await new Promise((fulfill, reject) => gsRun(fulfill, reject).getTexts())
-      console.log(texts)
-      activeSpeech = new Speech(texts, options)
-      activeSpeech.onEnd = () => activeSpeech = null
-      return activeSpeech.play()
+      var currentIndex = await new Promise((f,r) => gsRun(f,r).getCurrentIndex())
+      var getNextText = async function() {
+        var text = ""
+        while (text == "") {
+          text = await new Promise((f,r) => gsRun(f,r).getText(currentIndex))
+          currentIndex++
+        }
+        return text
+      }
+      var text = await getNextText()
+      while (text) {
+        console.log(text)
+        activeSpeech = new Speech(text, options)
+        await activeSpeech.play()
+        progress--
+        const nextTextPromise = getNextText()
+        await new Promise(f => activeSpeech.onEnd = f)
+        progress++
+        text = await nextTextPromise
+      }
     }
     catch(err) {
       error = err
     }
     finally {
-      progress--
+      progress = 0
+      activeSpeech = null
     }
   }
 </script>
