@@ -21,15 +21,17 @@
       progress++
       var current = await new Promise((f,r) => gsRun(f,r).getTextCurrent())
       while (current) {
-        new Promise((f,r) => gsRun(f,r).setSelection(current.index)).catch(console.error)
+        var promise = new Promise((f,r) => gsRun(f,r).batch([
+          {method: "setSelection", args: [current.index]},
+          {method: "getText", args: [current.index+1]}
+        ]))
         console.log(current.index, current.text)
         activeSpeech = new Speech(current.text, options)
         await activeSpeech.play()
         progress--
-        var promise = new Promise((f,r) => gsRun(f,r).getText(current.index+1))
         await new Promise(f => activeSpeech.onEnd = f)
         progress++
-        current = await promise
+        current = (await promise)[1]
       }
     }
     catch(err) {
