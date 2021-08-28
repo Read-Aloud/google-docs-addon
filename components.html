@@ -1,0 +1,6 @@
+<template>
+  <img data-class="ImageButton" class="image-button"
+    bind-statement-1="thisElem.src = #src"
+    bind-statement-2="$(thisElem).toggleClass('disabled', !!#disabled)"
+    bind-event-click="if (!#disabled) $(thisElem).triggerHandler('push')">
+</template>

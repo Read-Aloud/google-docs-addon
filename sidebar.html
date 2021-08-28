@@ -5,14 +5,16 @@
     <meta charset="utf-8">
     <base target="_blank">
     <link rel="stylesheet" href="https://ssl.gstatic.com/docs/script/css/add-ons1.css">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <?!= include('components-css'); ?>
     <?!= include('sidebar-css'); ?>
   </head>
   
   <body>
+    <?!= include('components'); ?>
+
     <div class="form-group">
       <label>Voice</label>
-      <select bind-statement-1="thisElem.disabled = #activeSpeech"
+      <select bind-statement-1="thisElem.disabled = #activeSpeech || #progress"
         bind-event-change="#options.voice = #voices[thisElem.value]">
         <option value="">Auto select</option>
         <option bind-repeater-i="#voices.length"
@@ -23,43 +25,43 @@
     <div class="form-group">
       <label>Speed</label>
       <input type="range" min="-1" max="1" step=".05" value="0"
-        bind-statement-1="thisElem.disabled = #activeSpeech"
+        bind-statement-1="thisElem.disabled = #activeSpeech || #progress"
         bind-event-change="#options.rate = Math.pow(10, thisElem.value)">
     </div>
 
     <div class="form-group">
       <label>Pitch</label>
       <input type="range" min="0" max="2" step=".05" value="1"
-        bind-statement-1="thisElem.disabled = #activeSpeech"
+        bind-statement-1="thisElem.disabled = #activeSpeech || #progress"
         bind-event-change="#options.pitch = Number(thisElem.value)">
     </div>
 
-    <div class="form-group" bind-repeater-if="#activeSpeech ? 0 : 1">
-      <button type="button"
-        bind-statement-1="thisElem.disabled = !!#progress"
-        bind-event-click="this.readAloud()">Start Reading</button>
+    <div class="form-group buttons" bind-repeater-if="#activeSpeech ? 0 : 1">
+      <label>&nbsp;</label>
+      <div bind-view="ImageButton"
+        bind-param-src="'https://assets.lsdsoftware.com/read-aloud/gdocs-addon/btn-play.png'"
+        bind-param-disabled="#progress"
+        bind-event-push="this.readAloud()"></div>
     </div>
 
-    <div class="form-group media-buttons" bind-repeater-if="#activeSpeech ? 1 : 0">
-      <button type="button"
-        bind-repeater-if="#activeSpeech.state == 'PAUSED' ? 1 : 0"
-        bind-statement-1="thisElem.disabled = !!#progress"
-        bind-event-click="activeSpeech.play()">
-        <i class="material-icons">play_arrow</i>
-      </button>
-      <button type="button"
-        bind-repeater-if="#activeSpeech.state != 'PAUSED' ? 1 : 0"
-        bind-statement-1="thisElem.disabled = !!#progress"
-        bind-event-click="activeSpeech.pause()">
-        <i class="material-icons">pause</i>
-      </button>
-      <button type="button"
-        bind-event-click="activeSpeech.stop(); activeSpeech = null">
-        <i class="material-icons">stop</i>
-      </button>
+    <div class="form-group buttons" bind-repeater-if="#activeSpeech ? 1 : 0">
+      <label>&nbsp;</label>
+      <div bind-repeater-if="#activeSpeech.state == 'PAUSED' ? 1 : 0"
+        bind-view="ImageButton"
+        bind-param-src="'https://assets.lsdsoftware.com/read-aloud/gdocs-addon/btn-play.png'"
+        bind-param-disabled="#progress"
+        bind-event-push="activeSpeech.play()"></div>
+      <div bind-repeater-if="#activeSpeech.state != 'PAUSED' ? 1 : 0"
+        bind-view="ImageButton"
+        bind-param-src="'https://assets.lsdsoftware.com/read-aloud/gdocs-addon/btn-pause.png'"
+        bind-param-disabled="#progress"
+        bind-event-push="activeSpeech.pause()"></div>
+      <div bind-view="ImageButton"
+        bind-param-src="'https://assets.lsdsoftware.com/read-aloud/gdocs-addon/btn-stop.png'"
+        bind-event-push="activeSpeech.stop(); activeSpeech = null"></div>
     </div>
 
-    <div class="form-group" bind-repeater-if="#error ? 1 : 0">
+    <div class="form-group status" bind-repeater-if="#error ? 1 : 0">
       <span class="error-message">{{#error.message}}</span>
     </div>
 
@@ -74,6 +76,7 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script src="https://assets.lsdsoftware.com/lib/databind.js"></script>
     <?!= include('utils'); ?>
+    <?!= include('components-js'); ?>
     <?!= include('engines'); ?>
     <?!= include('speech'); ?>
     <?!= include('sidebar-js'); ?>
