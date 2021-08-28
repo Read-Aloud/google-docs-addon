@@ -109,50 +109,41 @@ function getChildText(child: GoogleAppsScript.Document.Element): string|undefine
 class FluentIterable<T> {
   constructor(private iterable: Iterable<T>) {
   }
+  *$map<R>(mapper: (value: T, index: number) => R): Iterable<R> {
+    let index = 0
+    for (const value of this.iterable) {
+      yield mapper(value, index)
+      index++
+    }
+  }
+  *$filter(predicate: (value: T, index: number) => boolean): Iterable<T> {
+    let index = 0
+    for (const value of this.iterable) {
+      if (predicate(value, index)) yield value
+      index++
+    }
+  }
   map<R>(mapper: (value: T, index: number) => R): FluentIterable<R> {
-    return new FluentIterable(mapIterable(this.iterable, mapper))
+    return new FluentIterable(this.$map(mapper))
   }
   filter(predicate: (value: T, index: number) => boolean): FluentIterable<T> {
-    return new FluentIterable(filterIterable(this.iterable, predicate))
+    return new FluentIterable(this.$filter(predicate))
   }
   find(predicate: (value: T, index: number) => boolean): T|undefined {
-    return findIterable(this.iterable, predicate)
+    let index = 0
+    for (const value of this.iterable) {
+      if (predicate(value, index)) return value
+      index++
+    }
   }
-  reduce<R>(reducer: (acc: R, value: T, index: number) => R, initialValue: R): R {
-    return reduceIterable(this.iterable, reducer, initialValue)
+  reduce<R>(reducer: (acc: R, value: T, index: number) => R, initial: R, predicate?: (acc: R, index: number) => boolean): R {
+    let acc = initial
+    let index = 0
+    for (const value of this.iterable) {
+      acc = reducer(acc, value, index)
+      if (predicate && predicate(acc, index)) break
+      index++
+    }
+    return acc
   }
-}
-
-function* filterIterable<T>(iterable: Iterable<T>, predicate: (value: T, index: number) => boolean): Iterable<T> {
-  let index = 0
-  for (const value of iterable) {
-    if (predicate(value, index)) yield value
-    index++
-  }
-}
-
-function* mapIterable<R, T>(iterable: Iterable<T>, mapper: (value: T, index: number) => R): Iterable<R> {
-  let index = 0
-  for (const value of iterable) {
-    yield mapper(value, index)
-    index++
-  }
-}
-
-function findIterable<T>(iterable: Iterable<T>, predicate: (value: T, index: number) => boolean): T|undefined {
-  let index = 0
-  for (const value of iterable) {
-    if (predicate(value, index)) return value
-    index++
-  }
-}
-
-function reduceIterable<R, T>(iterable: Iterable<T>, reducer: (acc: R, value: T, index: number) => R, initial: R): R {
-  let acc = initial
-  let index = 0
-  for (const value of iterable) {
-    acc = reducer(acc, value, index)
-    index++
-  }
-  return acc
 }
