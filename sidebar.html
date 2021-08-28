@@ -33,23 +33,36 @@
     </div>
 
     <div class="form-group" bind-repeater-if="#activeSpeech ? 0 : 1">
-      <button type="button" bind-event-click="this.readAloud()">Read Aloud</button>
+      <button type="button"
+        bind-statement-1="thisElem.disabled = !!#progress"
+        bind-event-click="this.readAloud()">Start Reading</button>
     </div>
 
     <div class="form-group media-buttons" bind-repeater-if="#activeSpeech ? 1 : 0">
-      <button type="button" bind-repeater-if="!#progress ? 1 : 0" bind-event-click="activeSpeech.rewind()">
+      <button type="button"
+        bind-statement-1="thisElem.disabled = !!#progress"
+        bind-event-click="activeSpeech.rewind()">
         <i class="material-icons">skip_previous</i>
       </button>
-      <button type="button" bind-repeater-if="!#progress && #activeSpeech.state == 'PAUSED' ? 1 : 0" bind-event-click="activeSpeech.play()">
+      <button type="button"
+        bind-repeater-if="#activeSpeech.state == 'PAUSED' ? 1 : 0"
+        bind-statement-1="thisElem.disabled = !!#progress"
+        bind-event-click="activeSpeech.play()">
         <i class="material-icons">play_arrow</i>
       </button>
-      <button type="button" bind-repeater-if="!#progress && #activeSpeech.state == 'PLAYING' ? 1 : 0" bind-event-click="activeSpeech.pause()">
+      <button type="button"
+        bind-repeater-if="#activeSpeech.state != 'PAUSED' ? 1 : 0"
+        bind-statement-1="thisElem.disabled = !!#progress"
+        bind-event-click="activeSpeech.pause()">
         <i class="material-icons">pause</i>
       </button>
-      <button type="button" bind-event-click="activeSpeech.stop(); activeSpeech = null">
+      <button type="button"
+        bind-event-click="activeSpeech.stop(); activeSpeech = null">
         <i class="material-icons">stop</i>
       </button>
-      <button type="button" bind-repeater-if="!#progress ? 1 : 0" bind-event-click="activeSpeech.forward()">
+      <button type="button"
+        bind-statement-1="thisElem.disabled = !!#progress"
+        bind-event-click="activeSpeech.forward()">
         <i class="material-icons">skip_next</i>
       </button>
     </div>

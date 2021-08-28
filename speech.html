@@ -1,7 +1,5 @@
 <script>
   function Speech(text, options) {
-    options.rate = (options.rate || 1) * (isGoogleNative(options.voice) ? 0.9 : 1);
-
     var texts = getChunks(text);
     var self = this;
     var engine = webSpeechEngine;

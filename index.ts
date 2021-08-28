@@ -26,9 +26,9 @@ function showSidebar() {
 function getCurrentIndex(): number {
   const doc = DocumentApp.getActiveDocument()
   const body = doc.getBody()
-  const cursor = doc.getCursor()
-  if (cursor != null) {
-    const elem = new FluentIterable(iterateAncestors(cursor.getElement()))
+  const elemAtCursor = getElemAtCursor(doc)
+  if (elemAtCursor) {
+    const elem = new FluentIterable(iterateAncestors(elemAtCursor))
       .find(elem => elem.getParent().getType() == DocumentApp.ElementType.BODY_SECTION)!
     const elemIndex = elem.getParent().getChildIndex(elem)
     const child = new FluentIterable(iterateChildren(body))
@@ -51,6 +51,13 @@ function getText(index: number): string|undefined {
     doc.setSelection(doc.newRange().addElement(child.elem))
     return child.text
   }
+}
+
+function getElemAtCursor(doc: GoogleAppsScript.Document.Document): GoogleAppsScript.Document.Element|undefined {
+  const cursor = doc.getCursor()
+  if (cursor) return cursor.getElement()
+  const selection = doc.getSelection()
+  if (selection) return selection.getRangeElements()[0].getElement()
 }
 
 function* iterateAncestors(elem: GoogleAppsScript.Document.Element) {
