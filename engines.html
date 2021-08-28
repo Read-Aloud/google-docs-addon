@@ -111,4 +111,26 @@
       return "https://support.readaloud.app/read-aloud/speak/" + lang + "?a=1" + "&pf=" + (prefetch ? 1 : 0) + "&q=" + encodeURIComponent(utterance)
     }
   }
+
+
+  function TimeoutTtsEngine(baseEngine, timeoutMillis) {
+    var timer;
+    this.speak = function(text, options, onEvent) {
+      clearTimeout(timer);
+      timer = setTimeout(function() {
+        baseEngine.stop();
+        onEvent({type: "end", charIndex: text.length});
+      },
+      timeoutMillis);
+      baseEngine.speak(text, options, function(event) {
+          if (event.type == "end" || event.type == "error") clearTimeout(timer);
+          onEvent(event);
+      })
+    }
+    this.stop = function() {
+      clearTimeout(timer);
+      baseEngine.stop();
+    }
+    this.isSpeaking = baseEngine.isSpeaking;
+  }
 </script>

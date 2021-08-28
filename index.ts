@@ -61,13 +61,13 @@ function setSelection(index: number): void {
   if (child) doc.setSelection(doc.newRange().addElement(child))
 }
 
-function batch(items: {method: string, args: any[]}[]) {
+function batch(items: {method: string, args?: any[]}[]) {
   const methodMap: {[method: string]: Function} = {
     getTextCurrent,
     getText,
     setSelection
   }
-  return items.map(({method, args}) => methodMap[method](...args))
+  return items.map(({method, args}) => methodMap[method](...args || []))
 }
 
 
