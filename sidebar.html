@@ -40,11 +40,6 @@
 
     <div class="form-group media-buttons" bind-repeater-if="#activeSpeech ? 1 : 0">
       <button type="button"
-        bind-statement-1="thisElem.disabled = !!#progress"
-        bind-event-click="activeSpeech.rewind()">
-        <i class="material-icons">skip_previous</i>
-      </button>
-      <button type="button"
         bind-repeater-if="#activeSpeech.state == 'PAUSED' ? 1 : 0"
         bind-statement-1="thisElem.disabled = !!#progress"
         bind-event-click="activeSpeech.play()">
@@ -59,11 +54,6 @@
       <button type="button"
         bind-event-click="activeSpeech.stop(); activeSpeech = null">
         <i class="material-icons">stop</i>
-      </button>
-      <button type="button"
-        bind-statement-1="thisElem.disabled = !!#progress"
-        bind-event-click="activeSpeech.forward()">
-        <i class="material-icons">skip_next</i>
       </button>
     </div>
 

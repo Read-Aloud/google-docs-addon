@@ -1,5 +1,4 @@
 <script>
-  const engine = webSpeechEngine
   voices = null
   options = {}
   progress = 0
@@ -12,7 +11,7 @@
   }
 
   function loadVoices() {
-    return engine.getVoices()
+    return webSpeechEngine.getVoices()
   }
 
   async function readAloud() {
@@ -20,17 +19,17 @@
     try {
       error = null
       progress++
-      var currentIndex = await new Promise((f,r) => gsRun(f,r).getCurrentIndex())
-      var text = await new Promise((f,r) => gsRun(f,r).getText(currentIndex))
-      while (text) {
-        console.log(text)
-        activeSpeech = new Speech(text, options)
+      var current = await new Promise((f,r) => gsRun(f,r).getTextCurrent())
+      while (current) {
+        new Promise((f,r) => gsRun(f,r).setSelection(current.index)).catch(console.error)
+        console.log(current.index, current.text)
+        activeSpeech = new Speech(current.text, options)
         await activeSpeech.play()
         progress--
+        var promise = new Promise((f,r) => gsRun(f,r).getText(current.index+1))
         await new Promise(f => activeSpeech.onEnd = f)
         progress++
-        currentIndex++
-        text = await new Promise((f,r) => gsRun(f,r).getText(currentIndex))
+        current = await promise
       }
     }
     catch(err) {

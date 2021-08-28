@@ -1,6 +1,6 @@
 <script>
-  const webSpeechEngine = new WebSpeechEngine()
-  const fallbackTtsEngine = new FallbackTtsEngine()
+  var webSpeechEngine = new WebSpeechEngine()
+  var fallbackTtsEngine = new FallbackTtsEngine()
 
 
   function WebSpeechEngine() {
@@ -45,7 +45,7 @@
 
 
   function FallbackTtsEngine() {
-    const audio = document.createElement("AUDIO");
+    var audio = document.createElement("AUDIO");
     var isSpeaking = false;
     var nextStartTime = 0;
     var waitTimer;
@@ -61,7 +61,7 @@
           return new Promise(fulfill => audio.oncanplay = fulfill)
         })
         .then(function() {
-          const waitTime = nextStartTime - Date.now();
+          var waitTime = nextStartTime - Date.now();
           if (waitTime > 0) return new Promise(f => waitTimer = setTimeout(f, waitTime))
         })
         .then(function() {

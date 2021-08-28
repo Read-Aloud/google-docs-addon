@@ -1,5 +1,7 @@
 <script>
   function Speech(text, options) {
+    if (!options.rate) options.rate = 1
+
     var texts = getChunks(text);
     var self = this;
     var engine = webSpeechEngine;

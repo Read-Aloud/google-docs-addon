@@ -23,7 +23,10 @@ function showSidebar() {
   DocumentApp.getUi().showSidebar(html)
 }
 
-function getCurrentIndex(): number {
+
+// -----------------------------------------------------------------------------
+
+function getTextCurrent(): {text: string, index: number}|undefined {
   const doc = DocumentApp.getActiveDocument()
   const body = doc.getBody()
   const elemAtCursor = getElemAtCursor(doc)
@@ -36,22 +39,30 @@ function getCurrentIndex(): number {
       .filter(({text}) => !!text)
       .map((child, i) => ({...child, actualIndex: i}))
       .find(({index}) => index >= elemIndex)
-    return child ? child.actualIndex : 0
+    if (child) return {text: child.text!, index: child.actualIndex}
   }
-  return 0
+  return getText(0)
 }
 
-function getText(index: number): string|undefined {
+function getText(index: number): {text: string, index: number}|undefined {
+  const doc = DocumentApp.getActiveDocument()
+  const text = new FluentIterable(iterateChildren(doc.getBody()))
+    .map(child => getChildText(child))
+    .filter(text => !!text)
+    .find((text, i) => i == index)
+  if (text) return {text, index}
+}
+
+function setSelection(index: number): void {
   const doc = DocumentApp.getActiveDocument()
   const child = new FluentIterable(iterateChildren(doc.getBody()))
-    .map(elem => ({elem, text: getChildText(elem)}))
-    .filter(({text}) => !!text)
+    .filter(child => !!getChildText(child))
     .find((child, i) => i == index)
-  if (child) {
-    doc.setSelection(doc.newRange().addElement(child.elem))
-    return child.text
-  }
+  if (child) doc.setSelection(doc.newRange().addElement(child))
 }
+
+
+// -----------------------------------------------------------------------------
 
 function getElemAtCursor(doc: GoogleAppsScript.Document.Document): GoogleAppsScript.Document.Element|undefined {
   const cursor = doc.getCursor()
@@ -84,7 +95,7 @@ function getChildText(child: GoogleAppsScript.Document.Element): string|undefine
 }
 
 
-// --------------------------------
+// -----------------------------------------------------------------------------
 
 class FluentIterable<T> {
   constructor(private iterable: Iterable<T>) {
