@@ -29,7 +29,7 @@ function showSidebar() {
 function metaLang() {
   const doc = DocumentApp.getActiveDocument()
   const langDialect = doc.getLanguage()
-  const lang = langDialect ? langDialect.split('-')[0] : 'en'
+  const lang = langDialect ? langDialect.toLowerCase().split(/[-_]+/)[0] : 'en'
   return `<meta name="readaloud:lang" content="${lang}">`
 }
 
