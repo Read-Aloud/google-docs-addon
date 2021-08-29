@@ -100,10 +100,18 @@
     }
 
     this.prefetch = function(utterance, options) {
-      ajaxGet(getAudioUrl(utterance, options.lang, true))
+      fetch(getAudioUrl(utterance, options.lang, true))
     }
     this.setNextStartTime = function(time, options) {
       nextStartTime = time || 0;
+    }
+
+    this.getVoices = async function() {
+      return this.voices || (this.voices = await loadVoices())
+    }
+    function loadVoices() {
+      return fetch("https://support.readaloud.app/read-aloud/list-voices/premium")
+        .then(res => res.ok ? res.json() : null)
     }
 
     function getAudioUrl(utterance, lang, prefetch) {

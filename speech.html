@@ -4,7 +4,7 @@
 
     var texts = getChunks(text);
     var self = this;
-    var engine = webSpeechEngine;
+    var engine = options.engine;
     var pauseDuration = 650/options.rate;
     var index = 0;
     var delayedPlayTimer;
@@ -19,6 +19,10 @@
     this.rewind = rewind;
     this.seek = seek;
     this.gotoEnd = gotoEnd;
+    
+    this.prefetch = function() {
+      if (engine.prefetch) engine.prefetch(texts[0], options)
+    }
 
     function getChunks(text) {
       var isEA = /^zh|ko|ja/.test(options.lang);
@@ -76,7 +80,7 @@
     function canPause() {
       return engine.pause && !(
         isChromeOSNative(options.voice) ||
-        options.voice.voiceName == "US English Female TTS (by Google)"
+        options.voice.name == "US English Female TTS (by Google)"
       )
     }
 

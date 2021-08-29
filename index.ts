@@ -26,6 +26,18 @@ function showSidebar() {
 
 // -----------------------------------------------------------------------------
 
+function metaLang() {
+  const doc = DocumentApp.getActiveDocument()
+  const langDialect = doc.getLanguage()
+  const lang = langDialect ? langDialect.split('-')[0] : 'en'
+  return `<meta name="readaloud:lang" content="${lang}">`
+}
+
+function setLang(lang: string) {
+  const doc = DocumentApp.getActiveDocument()
+  doc.setLanguage(lang)
+}
+
 function getTextCurrent(): {text: string, index: number}|undefined {
   const doc = DocumentApp.getActiveDocument()
   const body = doc.getBody()

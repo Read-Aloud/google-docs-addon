@@ -3,20 +3,35 @@
   <head>
     <title>Read Aloud</title>
     <meta charset="utf-8">
+    <?!= metaLang(); ?>
+
     <base target="_blank">
     <link rel="stylesheet" href="https://ssl.gstatic.com/docs/script/css/add-ons1.css">
     <?!= include('components-css'); ?>
     <?!= include('sidebar-css'); ?>
   </head>
   
-  <body>
+  <body bind-statement-1="this.updateVoiceSelection(#allVoices, #selectedLang)"
+    bind-statement-2="if (#error) console.error(#error)">
     <?!= include('components'); ?>
+
+    <div class="form-group">
+      <label>Language</label>
+      <select bind-statement-1="thisElem.disabled = #activeSpeech || #progress"
+        bind-statement-2="if (#languages) setTimeout(() => thisElem.value = #selectedLang, 50)"
+        bind-event-change="this.selectLang(thisElem.value)">
+        <option value="en">English</option>
+        <option bind-repeater-i="#languages.length"
+          bind-statement-1="thisElem.value = #languages[#i].code">{{#languages[#i].name}}</option>
+      </select>
+    </div>
 
     <div class="form-group">
       <label>Voice</label>
       <select bind-statement-1="thisElem.disabled = #activeSpeech || #progress"
-        bind-event-change="#options.voice = #voices[thisElem.value]">
-        <option value="">Auto select</option>
+        bind-statement-2="if (#voices) setTimeout(() => thisElem.value = #selectedVoiceIndex, 50)"
+        bind-event-change="#selectedVoiceIndex = thisElem.value">
+        <option value="">Auto</option>
         <option bind-repeater-i="#voices.length"
           bind-statement-1="thisElem.value = #i">{{#voices[#i].name}}</option>
       </select>
@@ -26,7 +41,7 @@
       <label>Speed</label>
       <input type="range" min="-1" max="1" step=".05" value="0"
         bind-statement-1="thisElem.disabled = #activeSpeech || #progress"
-        bind-event-change="#options.rate = Math.pow(10, thisElem.value)">
+        bind-event-change="#options.rate = Math.pow(3, thisElem.value)">
     </div>
 
     <div class="form-group">

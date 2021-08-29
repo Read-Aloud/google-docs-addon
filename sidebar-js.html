@@ -5,39 +5,95 @@
     btnStop: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAt9AAALfQBiknk/QAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAAa0SURBVHic3ZttjFxVGcd/z7kzd2a3a+1LlDbUChU3pmkAk/VDEyD6hQ/4Eom0JCARibhb2hJJEGZ3odwg7HZt0kYXmu5Go6Z+0BoVU60ESKyJiYRouipIsSEUU6SFLKXd7u7M3Lnn8cMwMLud2Z2X+9Lll0wymXOe5/7Pc8+5d+5znitEjHpeivSFzyDOZhxzNWI2orYbY7JYzWKcLkTfASZROY0NXqIU/BWHY6w8e1x6x/0o9UkUTnWofzUOtxPYr2Pt5wh8CEoQBKBa39BxwEmVP6k0uC5Y+zf84CAqv5TBoTNhaw0tAKoqPJ77EthdBH4PxcLCg22UdBrSWchmAZ2g5HvkOw6L59n2nYcQAPU8gztzByV/mEJ+bSiDroUIpF3IdkIqfZbAv4/ZzMF2A9FWAPTR+zej/kGKxU9FNvBapF3oWAap9CTF2a/JwJ4/t+qqpQCo52WRd39KsXBrrAOfj5uBruUQ2D8ym75FPG+mWRdNB0C9ezdRKj2DtWubtY0EEejsgmznefz8DZIb+Ucz5qaZzrprx634/r8umcFD+UI7PQVT55aTzk7ocO6+ZswbDoA+tP27lEq/SHTKL0QxD+9OQjq1V0f6Rxs1a2gJ6MA9HthHWhYXJ8bAR1eB2p/LA0N3LNZ90QDowLadoD8MR11MyPtB2C8PDm1fsOtCjTrYdzPKb8JVFxPGgRWroBTskNzQk/W61Q2APvjt9Tjm9WjUxYSTghWroVjokf7df6/VpeZFUD3PxZEXolUXA0EJps6Bm3lOvTuztbrUvgsUT+8DuSxScXFRzENhdgWdl/+uVvNFS0D7ezci8lL0ymJETHkpBMXrJTfyl+qmOTNAFUHkSLzqYkAtzJyHVOaQet6cMc9dAoP3fB74ZIzS4qNQgMBfSyZ/V/XPqcoXVYRB+5OWD+B2wMcvb0Nhg7z9BhRmW7OdvgDLV46o6o9FRKEqAPTf3YNp8ewXi3DN9bD1ttaENcPh38Lzz7RmW/IhKK1iJHcT8AeoXgLGtPZX1/fh1Bkiyq5djGnzOLPT4KR3v+8OQB+46yMgX2zaWSmAyfNgQ8lOxYNfAJFNOpxbCZUZ4GS+0LQjq3BhGrQUrsCoUaCQBzG3QSUAYr/ZlBOrUCiGk/RMgkIeHPMtAKNbtjiI+Urj1lpOby9lAh+MuUYPbXFSdK9eg2pjiRGtfJboma+ggO8Lr13ZbbByVdPGHwb8IojZbBDtSVpLIgQ+WLPJgF6btJZECAIwcrUBWZ+0lkSwFoyzwQBXJq0lEVQBXWZAP5a0luTQToPQ9HbShwYlY1CZSlpHYlg9axDeSVpHYghvG5CJpHUkhvKWQTmWtI5EEAHVFw2Gl5PWkghOCgieNxQL/05aSyI4KbClCUPn+tOILKGUTkikHOXk1AlTLjLSp5PWEzviHJXxcb+cB1C7P2E58SIGRA5BJSXm8qdEBcVN2gWVX8F7ARBvfAbRFpPtSxA3fVQGhiehemPESI6AG1tyqMCrJ+CVqO+oAm/8t00XBmBPlccP0MG+/6B8uq6xUs4IByUILOTz5T236Tz4QfTpspVdsKbNh9dM9k10xbpKhWlqTqPqdpDGl4IAGMi40BHxzlC2A1Ytb8+HCLjZndL/QXnt3BkAQn/fiwgbazqongGloJxYDOx8NyGj5arxrs72XbkdJ3lk74bKxijMmwECqjg3Q/DK4t7kvdL2iM982kAm074fMWDM1urBQ51TpwN9B4DeixsozwAblHNqEvHgjUAqtXi/Rsh2/kh27b17/s+1vbtrdlA8fRPwiYvaRMvFiOKEI6wejlau2O1jzJt06b21muqXyeX6rsDwWo2WeDZHwppdxlgyy7rl4T2v1myue/zdB06iWmPLXMriov6EhTFb6w0eFimWluGxI4huC09NzJjUd+TRJ369YJfFfMjjYwdQXRqF0nMwD8ljT/xgsV4Nz7WlVTRtd8jQeN364GqaWmw62PtlME81vJ2eCHqjDI0922jvFl6Z2bmOov8CcOm8NVLmddz0deKNnmrGqOkzKd7oKdzJK1AuoeUgo7jHr2p28NDua3P927sxwe8XfIKMFJnApG6Rx0br3uYW9dCuhPID1LbrEH4GGs9Os3ACNb0M7T8qbf4tC+/VWRAe7ruWQHeBfDUsv3MQjmB0QL431tSrcQu7jADdc/8yzp67ATXfwJgtLd81RCxqD4MdY7brqOzb12KR8AKHCNvhfNTzDMX/XYaaDYj2IPJZVNeB2VBeMnoGzAzwFqL/xHIMMcfxeZnvP3lm/uNr2Pwf9OBJISgzhOEAAAAASUVORK5CYII=",
   }
 
+  languages = null
+  selectedLang = document.head.querySelector('meta[name="readaloud:lang"]').content
+  allVoices = null
   voices = null
+  selectedVoiceIndex = 0
   options = {}
   progress = 0
   error = null
   activeSpeech = null
-  $(docReady)
 
-  async function docReady() {
-    voices = await loadVoices()
+  Promise.all([
+    loadLanguages().then(x => languages = x),
+    loadVoices().then(x => allVoices = x),
+  ])
+  .catch(e => error = e)
+
+
+  // ------------------------------------------------------------
+
+  async function loadLanguages() {
+    var voices = await fallbackTtsEngine.getVoices()
+    var codes = voices ? Array.from(new Set(voices.map(x => x.lang.split('-')[0]))) : Object.keys(languageMap)
+    return codes
+      .filter(x => x != 'en')
+      .sort()
+      .map(code => ({code, name: languageMap[code] || code}))
   }
 
   function loadVoices() {
     return webSpeechEngine.getVoices()
   }
 
+
+  // ------------------------------------------------------------
+
+  function selectLang(lang) {
+    selectedLang = lang
+    new Promise((f,r) => gsRun(f,r).setLang(lang))
+      .catch(e => error = e)
+  }
+
+  function updateVoiceSelection() {
+    if (allVoices) {
+      voices = allVoices.filter(x => x.lang.split('-')[0] == selectedLang)
+      selectedVoiceIndex = ""
+    }
+  }
+
   async function readAloud() {
-    if (!options.voice) return error = {message: "Please select a voice"}
+    if (selectedVoiceIndex) {
+      options.voice = voices[selectedVoiceIndex]
+      options.lang = options.voice.lang || selectedLang
+      options.engine = webSpeechEngine
+      if (isGoogleNative(options.voice)) options.engine = new TimeoutTtsEngine(options.engine, 16*1000)
+    }
+    else {
+      options.voice = {name: "Fallback"}
+      options.lang = selectedLang
+      options.engine = fallbackTtsEngine
+    }
+
     try {
       error = null
       progress++
       var current = await new Promise((f,r) => gsRun(f,r).getTextCurrent())
+        .then(res => {
+          if (res) res.speech = new Speech(res.text, options)
+          return res
+        })
       while (current) {
         var promise = new Promise((f,r) => gsRun(f,r).batch([
-          {method: "setSelection", args: [current.index]},
-          {method: "getText", args: [current.index+1]}
-        ]))
+            {method: "setSelection", args: [current.index]},
+            {method: "getText", args: [current.index+1]}
+          ]))
+          .then(res => res[1])
+          .then(res => {
+            if (res) {
+              res.speech = new Speech(res.text, options)
+              res.speech.prefetch()
+            }
+            return res
+          })
         console.log(current.index, current.text)
-        activeSpeech = new Speech(current.text, options)
+        activeSpeech = current.speech
         await activeSpeech.play()
         progress--
         await new Promise(f => activeSpeech.onEnd = f)
         progress++
-        current = (await promise)[1]
+        current = await promise
       }
     }
     catch(err) {
