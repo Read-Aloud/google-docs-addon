@@ -5,21 +5,14 @@
     var texts = getChunks(text);
     var self = this;
     var engine = options.engine;
-    var pauseDuration = 650/options.rate;
     var index = 0;
-    var delayedPlayTimer;
     var ready = Promise.resolve();
 
     this.state = "IDLE";
-    this.options = options;
     this.play = play;
     this.pause = pause;
     this.stop = stop;
-    this.forward = forward;
-    this.rewind = rewind;
-    this.seek = seek;
-    this.gotoEnd = gotoEnd;
-    
+
     this.prefetch = function() {
       if (engine.prefetch) engine.prefetch(texts[0], options)
     }
@@ -49,14 +42,12 @@
         return Promise.resolve();
       }
       else {
-        self.state = new String("PLAYING");
-        self.state.startTime = new Date().getTime();
+        self.state = "PLAYING";
         return ready
           .then(function() {
             return speak(texts[index],
               function() {
                 self.state = "IDLE";
-                if (engine.setNextStartTime) engine.setNextStartTime(Date.now() + pauseDuration, options);
                 index++;
                 play();
               },
@@ -71,12 +62,6 @@
       }
     }
 
-    function delayedPlay() {
-      clearTimeout(delayedPlayTimer);
-      delayedPlayTimer = setTimeout(function() {stop().then(play)}, 750);
-      return Promise.resolve();
-    }
-
     function canPause() {
       return engine.pause && !(
         isChromeOSNative(options.voice) ||
@@ -88,7 +73,6 @@
       return ready
         .then(function() {
           if (canPause()) {
-            clearTimeout(delayedPlayTimer);
             engine.pause();
             self.state = "PAUSED";
           }
@@ -99,38 +83,9 @@
     function stop() {
       return ready
         .then(function() {
-          clearTimeout(delayedPlayTimer);
           engine.stop();
           self.state = "IDLE";
         })
-    }
-
-    function forward() {
-      if (index+1 < texts.length) {
-        index++;
-        return delayedPlay();
-      }
-      else return Promise.reject(new Error("Can't forward, at end"));
-    }
-
-    function rewind() {
-      if (self.state == "PLAYING" && new Date().getTime()-self.state.startTime > 3*1000) {
-        return stop().then(play);
-      }
-      else if (index > 0) {
-        index--;
-        return stop().then(play);
-      }
-      else return Promise.reject(new Error("Can't rewind, at beginning"));
-    }
-
-    function seek(n) {
-      index = n;
-      return play();
-    }
-
-    function gotoEnd() {
-      index = texts.length && texts.length-1;
     }
 
     function speak(text, onEnd, onError) {

@@ -47,7 +47,6 @@
   function FallbackTtsEngine() {
     var audio = document.createElement("AUDIO");
     var isSpeaking = false;
-    var nextStartTime = 0;
     var waitTimer;
     var speakPromise;
 
@@ -59,10 +58,6 @@
         .then(function() {
           audio.src = getAudioUrl(utterance, options.lang, false)
           return new Promise(fulfill => audio.oncanplay = fulfill)
-        })
-        .then(function() {
-          var waitTime = nextStartTime - Date.now();
-          if (waitTime > 0) return new Promise(f => waitTimer = setTimeout(f, waitTime))
         })
         .then(function() {
           isSpeaking = true;
@@ -101,9 +96,6 @@
 
     this.prefetch = function(utterance, options) {
       fetch(getAudioUrl(utterance, options.lang, true))
-    }
-    this.setNextStartTime = function(time, options) {
-      nextStartTime = time || 0;
     }
 
     this.getVoices = async function() {
