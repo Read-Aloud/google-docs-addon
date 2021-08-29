@@ -26,7 +26,7 @@
 
   async function loadLanguages() {
     var voices = await fallbackTtsEngine.getVoices()
-    var codes = voices ? Array.from(new Set(voices.map(x => x.lang && parseLang(x.lang).base).filter(x => x))) : Object.keys(languageMap)
+    var codes = voices ? Array.from(new Set(voices.map(x => getBaseLang(x.lang)))) : Object.keys(languageMap)
     return codes
       .filter(x => x != 'en')
       .sort()
@@ -48,13 +48,13 @@
 
   function updateVoiceSelection() {
     if (allVoices) {
-      voices = allVoices.filter(x => x.lang && parseLang(x.lang).base == selectedLang)
+      voices = allVoices.filter(x => x.lang && getBaseLang(x.lang) == selectedLang)
       selectedVoiceIndex = ""
     }
   }
 
   async function readAloud() {
-    var voice = selectedVoiceIndex && voices[selectedVoiceIndex] || findVoiceByLang(voices, selectedLang)
+    var voice = selectedVoiceIndex && voices[selectedVoiceIndex] || pickRandom(voices)
     if (voice) {
       options.voice = voice
       options.lang = options.voice.lang || selectedLang
@@ -66,6 +66,7 @@
       options.lang = selectedLang
       options.engine = fallbackTtsEngine
     }
+    console.log(options.voice.name, options.lang)
 
     try {
       error = null
