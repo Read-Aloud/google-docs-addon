@@ -8,7 +8,7 @@ function include(filename: string) {
 
 function onOpen(e: unknown) {
   DocumentApp.getUi().createAddonMenu()
-    .addItem('Open', 'showSidebar')
+    .addItem('Open sidebar', 'showSidebar')
     .addToUi()
 }
 
