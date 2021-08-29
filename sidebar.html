@@ -39,7 +39,7 @@
     <div class="form-group buttons" bind-repeater-if="#activeSpeech ? 0 : 1">
       <label>&nbsp;</label>
       <div bind-view="ImageButton"
-        bind-param-src="'https://assets.lsdsoftware.com/read-aloud/gdocs-addon/btn-play.png'"
+        bind-param-src="#imageAssets.btnPlay"
         bind-param-disabled="#progress"
         bind-event-push="this.readAloud()"></div>
     </div>
@@ -48,16 +48,16 @@
       <label>&nbsp;</label>
       <div bind-repeater-if="#activeSpeech.state == 'PAUSED' ? 1 : 0"
         bind-view="ImageButton"
-        bind-param-src="'https://assets.lsdsoftware.com/read-aloud/gdocs-addon/btn-play.png'"
+        bind-param-src="#imageAssets.btnPlay"
         bind-param-disabled="#progress"
         bind-event-push="activeSpeech.play()"></div>
       <div bind-repeater-if="#activeSpeech.state != 'PAUSED' ? 1 : 0"
         bind-view="ImageButton"
-        bind-param-src="'https://assets.lsdsoftware.com/read-aloud/gdocs-addon/btn-pause.png'"
+        bind-param-src="#imageAssets.btnPause"
         bind-param-disabled="#progress"
         bind-event-push="activeSpeech.pause()"></div>
       <div bind-view="ImageButton"
-        bind-param-src="'https://assets.lsdsoftware.com/read-aloud/gdocs-addon/btn-stop.png'"
+        bind-param-src="#imageAssets.btnStop"
         bind-event-push="activeSpeech.stop(); activeSpeech = null"></div>
     </div>
 
