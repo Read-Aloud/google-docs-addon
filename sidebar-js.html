@@ -17,12 +17,15 @@
   progress = 0
   error = null
   activeSpeech = null
+  state = "STOPPED"
 
   Promise.all([
     loadLanguages().then(x => languages = x),
     loadVoices().then(x => allVoices = x),
   ])
   .catch(e => error = e)
+
+  setInterval(() => state = activeSpeech ? activeSpeech.getState() : "STOPPED", 500)
 
 
   // ------------------------------------------------------------

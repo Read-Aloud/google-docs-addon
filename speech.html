@@ -7,11 +7,16 @@
     var engine = options.engine;
     var index = 0;
     var ready = Promise.resolve();
+    var state = "IDLE";
 
-    this.state = "IDLE";
     this.play = play;
     this.pause = pause;
     this.stop = stop;
+
+    this.getState = function() {
+      if (state == "PLAYING") return engine.isSpeaking() ? "PLAYING" : "LOADING"
+      else return "PAUSED"
+    }
 
     this.prefetch = function() {
       if (engine.prefetch) engine.prefetch(texts[0], options)
@@ -32,27 +37,27 @@
 
     function play() {
       if (index >= texts.length) {
-        self.state = "IDLE";
+        state = "IDLE";
         if (self.onEnd) self.onEnd();
         return Promise.resolve();
       }
-      else if (self.state == "PAUSED") {
-        self.state = "PLAYING";
+      else if (state == "PAUSED") {
+        state = "PLAYING";
         engine.resume();
         return Promise.resolve();
       }
       else {
-        self.state = "PLAYING";
+        state = "PLAYING";
         return ready
           .then(function() {
             return speak(texts[index],
               function() {
-                self.state = "IDLE";
+                state = "IDLE";
                 index++;
                 play();
               },
               function(err) {
-                self.state = "IDLE";
+                state = "IDLE";
                 if (self.onEnd) self.onEnd(err);
               })
           })
@@ -74,7 +79,7 @@
         .then(function() {
           if (canPause()) {
             engine.pause();
-            self.state = "PAUSED";
+            state = "PAUSED";
           }
           else return stop();
         })
@@ -84,7 +89,7 @@
       return ready
         .then(function() {
           engine.stop();
-          self.state = "IDLE";
+          state = "IDLE";
         })
     }
 
