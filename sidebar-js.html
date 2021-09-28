@@ -6,11 +6,14 @@
   }
 
   languages = null
-  selectedLang = document.head.querySelector('meta[name="readaloud:lang"]').content
   allVoices = null
   voices = null
-  selectedVoiceIndex = 0
-  options = {}
+  settings = {
+    lang: userPrefs.lang || 'en',
+    voice: userPrefs.voice || '',
+    rate: userPrefs.rate || 1,
+    pitch: userPrefs.pitch || 1,
+  }
   progress = 0
   error = null
   activeSpeech = null
@@ -41,29 +44,58 @@
   // ------------------------------------------------------------
 
   function selectLang(lang) {
-    selectedLang = lang
-    new Promise((f,r) => gsRun(f,r).setLang(lang))
+    settings.lang = lang
+    settings.voice = ''
+    updateUserPrefs()
+  }
+
+  function selectVoice(voiceName) {
+    settings.voice = voiceName
+    updateUserPrefs()
+  }
+
+  function setRate(rate) {
+    settings.rate = rate
+    updateUserPrefs()
+  }
+
+  function setPitch(pitch) {
+    settings.pitch = pitch
+    updateUserPrefs()
+  }
+
+  function updateUserPrefs() {
+    new Promise((f,r) => gsRun(f,r).setUserPrefs(settings))
       .catch(e => error = e)
   }
 
   function updateVoiceSelection() {
     if (allVoices) {
-      voices = allVoices.filter(x => x.lang && getBaseLang(x.lang) == selectedLang)
-      selectedVoiceIndex = ""
+      voices = allVoices.filter(x => x.lang && getBaseLang(x.lang) == settings.lang)
+    }
+  }
+
+  function getSelectedVoice() {
+    if (settings.voice) {
+      return voices.find(x => x.name == settings.voice)
     }
   }
 
   async function readAloud() {
-    var voice = selectedVoiceIndex && voices[selectedVoiceIndex] || pickRandom(voices)
+    var options = {
+      rate: Math.pow(3, settings.rate),
+      pitch: Number(settings.pitch),
+    }
+    var voice = getSelectedVoice() || pickRandom(voices)
     if (voice) {
       options.voice = voice
-      options.lang = options.voice.lang || selectedLang
+      options.lang = options.voice.lang || settings.lang
       options.engine = webSpeechEngine
       if (isGoogleNative(options.voice)) options.engine = new TimeoutTtsEngine(options.engine, 16*1000)
     }
     else {
       options.voice = {name: "Fallback"}
-      options.lang = selectedLang
+      options.lang = settings.lang
       options.engine = fallbackTtsEngine
     }
     console.log(options.voice.name, options.lang)

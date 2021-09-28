@@ -26,18 +26,6 @@ function showSidebar() {
 
 // -----------------------------------------------------------------------------
 
-function metaLang() {
-  const doc = DocumentApp.getActiveDocument()
-  const langDialect = doc.getLanguage()
-  const lang = langDialect ? langDialect.toLowerCase().split(/[-_]+/)[0] : 'en'
-  return `<meta name="readaloud:lang" content="${lang}">`
-}
-
-function setLang(lang: string) {
-  const doc = DocumentApp.getActiveDocument()
-  doc.setLanguage(lang)
-}
-
 function getTextCurrent(): {text: string, index: number}|undefined {
   const doc = DocumentApp.getActiveDocument()
   const body = doc.getBody()
@@ -77,9 +65,19 @@ function batch(items: {method: string, args?: any[]}[]) {
   const methodMap: {[method: string]: Function} = {
     getTextCurrent,
     getText,
-    setSelection
+    setSelection,
+    setUserPrefs,
   }
   return items.map(({method, args}) => methodMap[method](...args || []))
+}
+
+function setUserPrefs(prefs: any) {
+  PropertiesService.getUserProperties().setProperty("prefs", JSON.stringify(prefs))
+}
+
+function embedUserPrefs() {
+  const prefs = PropertiesService.getUserProperties().getProperty("prefs") || "{}"
+  return `<script>var userPrefs = ${prefs}</script>`
 }
 
 
