@@ -28,9 +28,11 @@ function showSidebar() {
 
 function getTextCurrent(): {text: string, index: number}|undefined {
   const doc = DocumentApp.getActiveDocument()
-  const body = doc.getBody()
+  const selectedText = getSelectedText(doc)
+  if (selectedText && selectedText.length > 3) return {text: selectedText, index: -1}
   const elemAtCursor = getElemAtCursor(doc)
   if (elemAtCursor) {
+    const body = doc.getBody()
     const elem = new FluentIterable(iterateAncestors(elemAtCursor))
       .find(elem => elem.getParent().getType() == DocumentApp.ElementType.BODY_SECTION)!
     const elemIndex = elem.getParent().getChildIndex(elem)
@@ -83,6 +85,25 @@ function embedUserPrefs() {
 
 // -----------------------------------------------------------------------------
 
+function getSelectedText(doc: GoogleAppsScript.Document.Document): string|undefined {
+  const selection = doc.getSelection()
+  if (selection) {
+    return selection.getRangeElements()
+      .map(x => {
+        const elem = x.getElement()
+        if (elem.getType() == DocumentApp.ElementType.TEXT) {
+          const text = elem.asText().getText()
+          return x.isPartial() ? text.substring(x.getStartOffset(), x.getEndOffsetInclusive() +1) : text
+        }
+        else {
+          return getChildText(elem)
+        }
+      })
+      .filter(text => text)
+      .join("\n\n")
+  }
+}
+
 function getElemAtCursor(doc: GoogleAppsScript.Document.Document): GoogleAppsScript.Document.Element|undefined {
   const cursor = doc.getCursor()
   if (cursor) return cursor.getElement()
@@ -110,6 +131,8 @@ function getChildText(child: GoogleAppsScript.Document.Element): string|undefine
       return child.asListItem().getText().trim()
     case DocumentApp.ElementType.TABLE:
       return child.asTable().getText().trim()
+    case DocumentApp.ElementType.TEXT:
+      return child.asText().getText().trim()
   }
 }
 

@@ -112,7 +112,12 @@
           return res
         })
       while (current) {
-        var promise = new Promise((f,r) => gsRun(f,r).batch([
+        var promise
+        if (current.index == -1) {
+          promise = Promise.resolve(null)
+        }
+        else {
+          promise = new Promise((f,r) => gsRun(f,r).batch([
             {method: "setSelection", args: [current.index]},
             {method: "getText", args: [current.index+1]}
           ]))
@@ -124,6 +129,7 @@
             }
             return res
           })
+        }
         console.log(current.index, current.text)
         activeSpeech = current.speech
         await activeSpeech.play()
