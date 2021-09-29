@@ -50,6 +50,11 @@
         state = "PLAYING";
         return ready
           .then(function() {
+            if (self.onRange) {
+              var startOffset = texts.reduce(function(acc, text, i) {return i<index ? acc+text.length : acc}, 0)
+              var endOffset = startOffset + texts[index].length
+              self.onRange(startOffset, endOffset)
+            }
             return speak(texts[index],
               function() {
                 state = "IDLE";

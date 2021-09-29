@@ -108,7 +108,10 @@
       progress++
       var current = await new Promise((f,r) => gsRun(f,r).getTextCurrent())
         .then(res => {
-          if (res) res.speech = new Speech(res.text, options)
+          if (res) {
+            res.speech = new Speech(res.text, options)
+            res.speech.onRange = showRange.bind(null, res.index)
+          }
           return res
         })
       while (current) {
@@ -117,14 +120,12 @@
           promise = Promise.resolve(null)
         }
         else {
-          promise = new Promise((f,r) => gsRun(f,r).batch([
-            {method: "setSelection", args: [current.index]},
-            {method: "getText", args: [current.index+1]}
-          ]))
-          .then(res => res[1])
+          var nextIndex = current.index + 1
+          promise = new Promise((f,r) => gsRun(f,r).getText(nextIndex))
           .then(res => {
             if (res) {
               res.speech = new Speech(res.text, options)
+              res.speech.onRange = showRange.bind(null, nextIndex)
               res.speech.prefetch()
             }
             return res
@@ -146,5 +147,10 @@
       progress = 0
       activeSpeech = null
     }
+  }
+
+  function showRange(index, startOffset, endOffset) {
+    new Promise((f,r) => gsRun(f,r).setSelection(index, startOffset, endOffset))
+      .catch(console.error)
   }
 </script>

@@ -55,12 +55,36 @@ function getText(index: number): {text: string, index: number}|undefined {
   if (text) return {text, index}
 }
 
-function setSelection(index: number): void {
+function setSelection(index: number, startOffset: number, endOffset: number): void {
   const doc = DocumentApp.getActiveDocument()
   const child = new FluentIterable(iterateChildren(doc.getBody()))
     .filter(child => !!getChildText(child))
     .find((child, i) => i == index)
-  if (child) doc.setSelection(doc.newRange().addElement(child))
+  if (child) {
+    const range = doc.newRange()
+    if (isContainerElement(child)) {
+      new FluentIterable(iterateDescendants(child))
+        .filter(child => child.getType() == DocumentApp.ElementType.TEXT)
+        .reduceUntil((offset, child) => {
+          const textChild = child.asText()
+          const end = offset + textChild.getText().length
+          if (end > startOffset) {
+            if (end <= endOffset) {
+              if (offset >= startOffset) range.addElement(child)
+              else range.addElement(textChild, startOffset-offset, end-offset-1)
+            }
+            else {
+              range.addElement(textChild, Math.max(0, startOffset-offset), endOffset-offset-1)
+            }
+          }
+          return end
+        }, 0, offset => offset >= endOffset)
+    }
+    else {
+      range.addElement(child)
+    }
+    doc.setSelection(range)
+  }
 }
 
 function batch(items: {method: string, args?: any[]}[]) {
@@ -119,8 +143,19 @@ function* iterateAncestors(elem: GoogleAppsScript.Document.Element) {
   while (elem)
 }
 
-function* iterateChildren(body: GoogleAppsScript.Document.Body) {
-  for (let i=0; i<body.getNumChildren(); i++) yield body.getChild(i)
+function* iterateChildren(elem: GoogleAppsScript.Document.Body|GoogleAppsScript.Document.ContainerElement) {
+  for (let i=0; i<elem.getNumChildren(); i++) yield elem.getChild(i)
+}
+
+function* iterateDescendants(elem: GoogleAppsScript.Document.ContainerElement): Iterable<GoogleAppsScript.Document.Element> {
+  for (const child of iterateChildren(elem)) {
+    yield child
+    if (isContainerElement(child)) yield* iterateDescendants(child)
+  }
+}
+
+function isContainerElement(elem: GoogleAppsScript.Document.Element): elem is GoogleAppsScript.Document.ContainerElement {
+  return typeof (elem as any).getChild == "function"
 }
 
 function getChildText(child: GoogleAppsScript.Document.Element): string|undefined {
@@ -169,12 +204,12 @@ class FluentIterable<T> {
       index++
     }
   }
-  reduce<R>(reducer: (acc: R, value: T, index: number) => R, initial: R, predicate?: (acc: R, index: number) => boolean): R {
+  reduceUntil<R>(reducer: (acc: R, value: T, index: number) => R, initial: R, predicate: (acc: R, index: number) => boolean): R {
     let acc = initial
     let index = 0
     for (const value of this.iterable) {
       acc = reducer(acc, value, index)
-      if (predicate && predicate(acc, index)) break
+      if (predicate(acc, index)) break
       index++
     }
     return acc
