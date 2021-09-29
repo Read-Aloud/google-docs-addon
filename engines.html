@@ -35,7 +35,7 @@
       return this.voices || (this.voices = await loadVoices())
     }
     function loadVoices() {
-      return promiseTimeout(3000, "Timeout WebSpeech getVoices", new Promise(function(fulfill) {
+      return promiseTimeout(5000, "Timeout WebSpeech getVoices", new Promise(function(fulfill) {
         var voices = speechSynthesis.getVoices() || []
         if (voices.length) fulfill(voices)
         else speechSynthesis.onvoiceschanged = () => fulfill(speechSynthesis.getVoices() || [])
