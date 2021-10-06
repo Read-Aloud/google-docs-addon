@@ -75,6 +75,7 @@
   function updateVoiceSelection() {
     if (allVoices) {
       voices = allVoices.filter(x => x.lang && getBaseLang(x.lang) == settings.lang)
+        .concat({name: "Fallback"})
     }
   }
 
@@ -90,14 +91,14 @@
       pitch: Number(settings.pitch),
     }
     var voice = getSelectedVoice() || pickRandom(voices)
-    if (voice) {
+    if (voice.name != "Fallback") {
       options.voice = voice
       options.lang = options.voice.lang || settings.lang
       options.engine = webSpeechEngine
       if (isGoogleNative(options.voice)) options.engine = new TimeoutTtsEngine(options.engine, 16*1000)
     }
     else {
-      options.voice = {name: "Fallback"}
+      options.voice = voice
       options.lang = settings.lang
       options.engine = fallbackTtsEngine
     }
