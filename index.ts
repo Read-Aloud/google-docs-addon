@@ -26,10 +26,23 @@ function showSidebar() {
 
 // -----------------------------------------------------------------------------
 
+function getTexts(): string[] {
+  const doc = DocumentApp.getActiveDocument()
+  const selectedTexts = getSelectedTexts(doc)
+  if (selectedTexts && selectedTexts.join("\n\n").length > 3) return selectedTexts
+  return new FluentIterable(iterateChildren(doc.getBody()))
+    .map(child => getChildText(child))
+    .toArray()
+    .filter(isNonEmpty)
+}
+
 function getTextCurrent(): {text: string, index: number}|undefined {
   const doc = DocumentApp.getActiveDocument()
-  const selectedText = getSelectedText(doc)
-  if (selectedText && selectedText.length > 3) return {text: selectedText, index: -1}
+  const selectedTexts = getSelectedTexts(doc)
+  if (selectedTexts) {
+    const selectedText = selectedTexts.join("\n\n")
+    if (selectedText.length > 3) return {text: selectedText, index: -1}
+  }
   const elemAtCursor = getElemAtCursor(doc)
   if (elemAtCursor) {
     const body = doc.getBody()
@@ -109,7 +122,7 @@ function embedUserPrefs() {
 
 // -----------------------------------------------------------------------------
 
-function getSelectedText(doc: GoogleAppsScript.Document.Document): string|undefined {
+function getSelectedTexts(doc: GoogleAppsScript.Document.Document): string[]|undefined {
   const selection = doc.getSelection()
   if (selection) {
     return selection.getRangeElements()
@@ -123,8 +136,7 @@ function getSelectedText(doc: GoogleAppsScript.Document.Document): string|undefi
           return getChildText(elem)
         }
       })
-      .filter(text => text)
-      .join("\n\n")
+      .filter(isNonEmpty)
   }
 }
 
@@ -171,6 +183,10 @@ function getChildText(child: GoogleAppsScript.Document.Element): string|undefine
   }
 }
 
+function isNonEmpty(value: string|undefined): value is string {
+  return !!value
+}
+
 
 // -----------------------------------------------------------------------------
 
@@ -213,5 +229,8 @@ class FluentIterable<T> {
       index++
     }
     return acc
+  }
+  toArray(): T[] {
+    return Array.from(this.iterable)
   }
 }

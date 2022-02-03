@@ -14,6 +14,7 @@
     bind-statement-2="if (#error) console.error(#error)">
     <?!= include('components'); ?>
 
+  <div bind-statement-1="$(thisElem).toggle(#settings.mode == 'active')">
     <div class="form-group">
       <label>Language</label>
       <select bind-statement-1="thisElem.disabled = #activeSpeech || #progress"
@@ -81,6 +82,13 @@
     <div class="form-group status" bind-repeater-if="#error ? 1 : 0">
       <span class="error-message">{{#error.message}}</span>
     </div>
+  </div>
+
+  <div bind-statement-1="$(thisElem).toggle(#settings.mode == 'passive')">
+    Please keep this sidebar open for Read Aloud to work.
+    If you prefer to use the old Google Docs addon, click
+    <span class="link" bind-event-click="this.setMode('active')">here</span>.
+  </div>
 
     <div class="footer">
       <a href="https://www.lsdsoftware.com/contact.html?subject=Read%20Aloud%20GDocs%20Addon">report issue</a>
