@@ -7,11 +7,26 @@
   }
 
   addEventListener("message", function(event) {
-    if (event.data.type == "ra-getTexts") {
+    var req = event.data
+    var sendRes = function(value) {
+      top.postMessage({id: req.id, value: value}, "*")
+    }
+    var sendErrorRes = function(err) {
+      top.postMessage({id: req.id, error: String(err.message || err)}, "*")
+    }
+    if (req.method == "ra-getCurrentIndex") {
       setMode("passive")
-      new Promise((f,r) => gsRun(f,r).getTexts())
-        .then(texts => top.postMessage({type: "ra-texts", texts: texts}, "*"))
-        .catch(err => top.postMessage({type: "ra-texts", error: err.message || err}, "*"))
+      sendRes(0)
+    }
+    else if (req.method == "ra-getTexts") {
+      if (req.index == 0) {
+        new Promise((f,r) => gsRun(f,r).getTexts())
+          .then(sendRes)
+          .catch(sendErrorRes)
+      }
+      else {
+        sendRes(null)
+      }
     }
   })
 
@@ -67,6 +82,7 @@
   // ------------------------------------------------------------
 
   function setMode(mode) {
+    if (mode == settings.mode) return
     settings.mode = mode
     updateUserPrefs()
   }
