@@ -1,5 +1,5 @@
 <script>
-  setInterval(advertise, 1000)
+  setInterval(advertise, 500)
   advertise()
 
   function advertise() {
@@ -16,17 +16,14 @@
     }
     if (req.method == "ra-getCurrentIndex") {
       setMode("passive")
-      sendRes(0)
+      new Promise((f,r) => gsRun(f,r).getCurrentIndex())
+        .then(sendRes)
+        .catch(sendErrorRes)
     }
     else if (req.method == "ra-getTexts") {
-      if (req.index == 0) {
-        new Promise((f,r) => gsRun(f,r).getTexts())
-          .then(sendRes)
-          .catch(sendErrorRes)
-      }
-      else {
-        sendRes(null)
-      }
+      new Promise((f,r) => gsRun(f,r).getTexts(req.index))
+        .then(sendRes)
+        .catch(sendErrorRes)
     }
   })
 

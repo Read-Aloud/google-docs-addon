@@ -26,15 +26,65 @@ function showSidebar() {
 
 // -----------------------------------------------------------------------------
 
-function getTexts(): string[] {
+function getCurrentIndex(): number {
   const doc = DocumentApp.getActiveDocument()
+  const body = doc.getBody()
+
+  //if selected text
   const selectedTexts = getSelectedTexts(doc)
-  if (selectedTexts && selectedTexts.join("\n\n").length > 3) return selectedTexts
-  return new FluentIterable(iterateChildren(doc.getBody()))
-    .map(child => getChildText(child))
-    .toArray()
-    .filter(isNonEmpty)
+  if (selectedTexts && selectedTexts.join("\n\n").length > 3) return 99999
+
+  //else
+  const elemAtCursor = getElemAtCursor(doc)
+  if (elemAtCursor) {
+    const bodyElem = new FluentIterable(iterateAncestors(elemAtCursor))
+      .find(elem => elem.getParent().getType() == DocumentApp.ElementType.BODY_SECTION)
+    if (bodyElem) {
+      const bodyIndex = bodyElem.getParent().getChildIndex(bodyElem)
+      const readable = iterateReadables(body)
+        .find(readable => readable.bodyIndex >= bodyIndex)
+      if (readable) return readable.index
+    }
+  }
+  return 0
 }
+
+function getTexts(index: number): string[]|undefined {
+  const doc = DocumentApp.getActiveDocument()
+  const body = doc.getBody()
+
+  //if selected text
+  if (index == 99999) return getSelectedTexts(doc)
+
+  //else
+  const readable = iterateReadables(body)
+    .find(readable => readable.index == index)
+  if (readable) {
+    const range = doc.newRange()
+    range.addElement(readable.elem)
+    doc.setSelection(range)
+    return [readable.text]
+  }
+}
+
+function iterateReadables(body: GoogleAppsScript.Document.Body) {
+  return new FluentIterable(iterateChildren(body))
+    .map((elem, i) => ({
+      elem,
+      text: getChildText(elem),
+      bodyIndex: i
+    }))
+    .filter(child => !!child.text)
+    .map((child, i) => ({
+      elem: child.elem,
+      text: child.text!,
+      bodyIndex: child.bodyIndex,
+      index: i
+    }))
+}
+
+
+// legacy ----------------------------------------------------------------------
 
 function getTextCurrent(): {text: string, index: number}|undefined {
   const doc = DocumentApp.getActiveDocument()
