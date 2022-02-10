@@ -12,7 +12,11 @@
       top.postMessage({id: req.id, value: value}, "*")
     }
     var sendErrorRes = function(err) {
-      top.postMessage({id: req.id, error: String(err.message || err)}, "*")
+      var errMessage = String(err.message || err)
+      if (/action|permission|require|allow|forbid|authori/i.test(errMessage)) {
+        errMessage += " (Please make sure you are logged in to the browser using the same Google account as the document you're reading)"
+      }
+      top.postMessage({id: req.id, error: errMessage}, "*")
     }
     if (req.method == "ra-getCurrentIndex") {
       setMode("passive")
