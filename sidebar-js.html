@@ -178,7 +178,8 @@
         activeSpeech = current.speech
         await activeSpeech.play()
         progress--
-        await new Promise(f => activeSpeech.onEnd = f)
+        const err = await new Promise(f => activeSpeech.onEnd = f)
+        if (err) throw err
         progress++
         current = await promise
       }

@@ -15,7 +15,7 @@
       if (options.volume) utter.volume = options.volume
       utter.onstart = () => onEvent({type: 'start', charIndex: 0})
       utter.onend = () => onEvent({type: 'end', charIndex: text.length})
-      utter.onerror = ev => onEvent({type: 'error', errorMessage: ev.error})
+      utter.onerror = ev => ["canceled", "interrupted"].includes(ev.error) || onEvent({type: 'error', errorMessage: ev.error})
       speechSynthesis.speak(utter)
     }
     this.stop = function() {
