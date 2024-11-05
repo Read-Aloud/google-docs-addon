@@ -5,6 +5,7 @@
 
   function WebSpeechEngine() {
     var utter;
+    var timer;
     this.speak = function(text, options, onEvent) {
       utter = new SpeechSynthesisUtterance()
       utter.text = text
@@ -13,16 +14,25 @@
       if (options.pitch) utter.pitch = options.pitch
       if (options.rate) utter.rate = options.rate
       if (options.volume) utter.volume = options.volume
-      utter.onstart = () => onEvent({type: 'start', charIndex: 0})
+      utter.onstart = () => {
+        clearTimeout(timer)
+        onEvent({type: 'start', charIndex: 0})
+      }
       utter.onend = () => onEvent({type: 'end', charIndex: text.length})
       utter.onerror = ev => ["canceled", "interrupted"].includes(ev.error) || onEvent({type: 'error', errorMessage: ev.error})
+      timer = setTimeout(() => {
+        speechSynthesis.cancel()
+        speechSynthesis.speak(utter)
+      }, 3000)
       speechSynthesis.speak(utter)
     }
     this.stop = function() {
+      clearTimeout(timer)
       if (utter) utter.onend = null
       speechSynthesis.cancel()
     }
     this.pause = function() {
+      clearTimeout(timer)
       speechSynthesis.pause()
     }
     this.resume = function() {
@@ -117,14 +127,21 @@
     var timer;
     this.speak = function(text, options, onEvent) {
       clearTimeout(timer);
-      timer = setTimeout(function() {
-        baseEngine.stop();
-        onEvent({type: "end", charIndex: text.length});
-      },
-      timeoutMillis);
       baseEngine.speak(text, options, function(event) {
-          if (event.type == "end" || event.type == "error") clearTimeout(timer);
-          onEvent(event);
+        switch (event.type) {
+          case "start":
+            timer = setTimeout(function() {
+              baseEngine.stop();
+              onEvent({type: "end", charIndex: text.length});
+            },
+            timeoutMillis);
+            break
+          case "end":
+          case "error":
+            clearTimeout(timer);
+            break
+        }
+        onEvent(event);
       })
     }
     this.stop = function() {

@@ -6,7 +6,6 @@
     var self = this;
     var engine = options.engine;
     var index = 0;
-    var ready = Promise.resolve();
     var state = "IDLE";
 
     this.play = play;
@@ -35,40 +34,33 @@
       }
     }
 
-    function play() {
+    async function play() {
       if (index >= texts.length) {
         state = "IDLE";
         if (self.onEnd) self.onEnd();
-        return Promise.resolve();
       }
       else if (state == "PAUSED") {
         state = "PLAYING";
         engine.resume();
-        return Promise.resolve();
       }
       else {
         state = "PLAYING";
-        return ready
-          .then(function() {
-            if (self.onRange) {
-              var startOffset = texts.reduce(function(acc, text, i) {return i<index ? acc+text.length : acc}, 0)
-              var endOffset = startOffset + texts[index].length
-              self.onRange(startOffset, endOffset)
-            }
-            return speak(texts[index],
-              function() {
-                state = "IDLE";
-                index++;
-                play();
-              },
-              function(err) {
-                state = "IDLE";
-                if (self.onEnd) self.onEnd(err);
-              })
+        if (self.onRange) {
+          var startOffset = texts.reduce(function(acc, text, i) {return i<index ? acc+text.length : acc}, 0)
+          var endOffset = startOffset + texts[index].length
+          self.onRange(startOffset, endOffset)
+        }
+        await speak(texts[index],
+          function() {
+            state = "IDLE";
+            index++;
+            play();
+          },
+          function(err) {
+            state = "IDLE";
+            if (self.onEnd) self.onEnd(err);
           })
-          .then(function() {
-            if (texts[index+1] && engine.prefetch) engine.prefetch(texts[index+1], options);
-          })
+        if (texts[index+1] && engine.prefetch) engine.prefetch(texts[index+1], options);
       }
     }
 
@@ -80,22 +72,16 @@
     }
 
     function pause() {
-      return ready
-        .then(function() {
-          if (canPause()) {
-            engine.pause();
-            state = "PAUSED";
-          }
-          else return stop();
-        })
+      if (canPause()) {
+        engine.pause();
+        state = "PAUSED";
+      }
+      else return stop();
     }
 
     function stop() {
-      return ready
-        .then(function() {
-          engine.stop();
-          state = "IDLE";
-        })
+      engine.stop();
+      state = "IDLE";
     }
 
     function speak(text, onEnd, onError) {
